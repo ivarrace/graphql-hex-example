@@ -1,7 +1,7 @@
 package com.ivarrace.graphqlhex.ui.graphql.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ivarrace.graphqlhex.domain.model.User;
+import com.ivarrace.graphqlhex.domain.model.Dummy;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -21,27 +21,27 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class UserGraphQLControllerTest {
+class DummyGraphQLControllerTest {
 
     @Autowired private ObjectMapper mapper;
     @Autowired private TestRestTemplate restTemplete;
     @LocalServerPort private Integer port;
 
     @Test
-    public void testIfListCommandIsOk() throws Exception{
+    void testIfListCommandIsOk() throws Exception{
         String body = "{\"query\":\"query{\\n  findAll(pageNumber:0, pageSize:10000, orderBy: \\\"name\\\", asc: true){\\n    content{\\n      id,\\n      name\\n    },\\n    totalElements\\n  }\\n}\",\"variables\":null}";
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
         final HttpEntity<String> entity = new HttpEntity<>(body, headers);
-        final ResponseEntity<String> responseEntity = this.restTemplete.exchange("http://localhost:" + port + "/graphql/user", HttpMethod.POST, entity, String.class);
+        final ResponseEntity<String> responseEntity = this.restTemplete.exchange("http://localhost:" + port + "/graphql/dummy", HttpMethod.POST, entity, String.class);
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         final JSONObject jsonObject = new JSONObject(responseEntity.getBody());
         final JSONObject dataJSONObject = jsonObject.getJSONObject("data");
         final JSONObject findAllJSONObject = dataJSONObject.getJSONObject("findAll");
-        final List<User> users = mapper.readValue(findAllJSONObject.getString("content"), mapper.getTypeFactory().constructParametricType(List.class, User.class));
+        final List<Dummy> dummies = mapper.readValue(findAllJSONObject.getString("content"), mapper.getTypeFactory().constructParametricType(List.class, Dummy.class));
         final Integer totalElements = findAllJSONObject.getInt("totalElements");
-        assertNotNull(users);
-        assertFalse(users.isEmpty());
+        assertNotNull(dummies);
+        assertFalse(dummies.isEmpty());
         assertTrue(totalElements > 0);
     }
 

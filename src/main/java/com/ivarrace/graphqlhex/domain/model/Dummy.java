@@ -18,7 +18,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class User {
+public class Dummy {
 
     @Id
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
@@ -29,7 +29,7 @@ public class User {
     @Column(nullable = false)
     private String name;
 
-    public User(String name) {
+    public Dummy(String name) {
         this.name = name;
     }
 

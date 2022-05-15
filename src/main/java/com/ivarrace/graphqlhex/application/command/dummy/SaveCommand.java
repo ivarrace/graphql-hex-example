@@ -1,4 +1,4 @@
-package com.ivarrace.graphqlhex.application.command.user;
+package com.ivarrace.graphqlhex.application.command.dummy;
 
 import com.ivarrace.graphqlhex.infrastructure.validations.SafeHtml;
 import lombok.AllArgsConstructor;

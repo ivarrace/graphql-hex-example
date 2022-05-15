@@ -1,6 +1,6 @@
 package com.ivarrace.graphqlhex.ui.graphql.controller;
 
-import com.ivarrace.graphqlhex.ui.graphql.mapper.UserMapper;
+import com.ivarrace.graphqlhex.ui.graphql.mapper.DummyMapper;
 import graphql.ExecutionInput;
 import graphql.ExecutionResult;
 import graphql.GraphQL;
@@ -19,15 +19,14 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/graphql/user")
-public class UserGraphQLController {
+@RequestMapping("/graphql/dummy")
+public class DummyGraphQLController {
 
     public static final String QUERY = "query";
     public static final String OPERATION_NAME = "operationName";
     private final GraphQL graphQL;
-    //@Autowired private ObjectMapper mapper;
 
-    public UserGraphQLController(final UserMapper mapper) {
+    public DummyGraphQLController(final DummyMapper mapper) {
         final GraphQLSchema schema = new GraphQLSchemaGenerator()
                 .withResolverBuilders(
                         //Resolve by annotations

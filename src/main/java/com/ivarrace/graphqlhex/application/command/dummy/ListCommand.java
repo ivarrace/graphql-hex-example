@@ -1,6 +1,6 @@
-package com.ivarrace.graphqlhex.application.command.user;
+package com.ivarrace.graphqlhex.application.command.dummy;
 
-import com.ivarrace.graphqlhex.domain.model.User;
+import com.ivarrace.graphqlhex.domain.model.Dummy;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,6 +23,6 @@ public class ListCommand {
 
     private Boolean asc = Boolean.TRUE;
 
-    private User user;
+    private Dummy dummy;
 
 }
