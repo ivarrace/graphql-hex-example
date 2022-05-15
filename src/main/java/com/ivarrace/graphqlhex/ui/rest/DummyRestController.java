@@ -23,13 +23,13 @@ public class DummyRestController {
     }
 
     @GetMapping
-    public Page<Dummy> get(@Valid ListCommand command) {
+    public Page<Dummy> findAll(@Valid ListCommand command) {
         return commandHandler.handle(command);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Dummy post(@RequestBody @Valid SaveCommand command) {
+    public Dummy save(@RequestBody @Valid SaveCommand command) {
         return commandHandler.handle(command);
     }
 

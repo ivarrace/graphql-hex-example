@@ -23,7 +23,7 @@ public class DummyMapper {
     @GraphQLQuery(name = "findAll")
     public Page<Dummy> findAll(@GraphQLNonNull final Integer pageNumber,
                                @GraphQLNonNull final Integer pageSize,
-                               final String orderBy,
+                               @GraphQLNonNull final String orderBy,
                                @GraphQLNonNull final Boolean asc,
                                final Dummy dummy) {
         return commandHandler.handle(new ListCommand(pageNumber, pageSize, Optional.ofNullable(orderBy), asc, dummy));

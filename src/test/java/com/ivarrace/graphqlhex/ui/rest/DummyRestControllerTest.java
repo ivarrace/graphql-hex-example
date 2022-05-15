@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.*;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -21,49 +22,81 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class DummyRestControllerTest {
+class DummyRestControllerTest {
 
     @Autowired private ObjectMapper mapper;
     @Autowired private TestRestTemplate restTemplete;
     @LocalServerPort private Integer port;
 
     @Test
-    public void testIfListCommandReturnsOk() throws Exception {
+    void findALl_default_pagination_values() throws Exception {
         final HttpEntity<String> entity = new HttpEntity<String>(null, null);
-        final ResponseEntity<String> responseEntity = this.restTemplete.exchange("http://localhost:" + port + "/rest/dummy?pageNumber=0&pageSize=10000&orderBy=name&asc=true", HttpMethod.GET, entity, String.class);
+        final ResponseEntity<String> responseEntity = this.restTemplete.exchange("http://localhost:" + port + "/rest/dummy", HttpMethod.GET, entity, String.class);
         final JSONObject jsonObject = new JSONObject(responseEntity.getBody());
         final List<Dummy> dummies = mapper.readValue(jsonObject.getString("content"), mapper.getTypeFactory().constructParametricType(List.class, Dummy.class));
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertNotNull(dummies);
         assertFalse(dummies.isEmpty());
+        assertEquals(25, jsonObject.get("size"));
+        assertEquals(0, jsonObject.get("number"));
+        assertTrue(jsonObject.getString("sort").contains("\"unsorted\":true"));
     }
 
     @Test
-    public void testIfListCommandReturnsOk_par() throws Exception {
+    void findALl_sorted() throws Exception {
         final HttpEntity<String> entity = new HttpEntity<String>(null, null);
-        final ResponseEntity<String> responseEntity = this.restTemplete.exchange("http://localhost:" + port + "/rest/dummy?pageNumber=0&pageSize=10000&asc=true", HttpMethod.GET, entity, String.class);
+        final ResponseEntity<String> responseEntity = this.restTemplete.exchange("http://localhost:" + port + "/rest/dummy?orderBy=name&asc=true", HttpMethod.GET, entity, String.class);
         final JSONObject jsonObject = new JSONObject(responseEntity.getBody());
         final List<Dummy> dummies = mapper.readValue(jsonObject.getString("content"), mapper.getTypeFactory().constructParametricType(List.class, Dummy.class));
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertNotNull(dummies);
         assertFalse(dummies.isEmpty());
+        assertEquals(25, jsonObject.get("size"));
+        assertEquals(0, jsonObject.get("number"));
+        assertTrue(jsonObject.getString("sort").contains("\"sorted\":true"));
     }
 
     @Test
-    public void testIfListCommandReturnsOk2() throws Exception {
+    void findALl_paginated() throws Exception {
         final HttpEntity<String> entity = new HttpEntity<String>(null, null);
-        final ResponseEntity<String> responseEntity = this.restTemplete.exchange("http://localhost:" + port + "/rest/dummy?pageNumber=0&pageSize=10000&orderBy=name&asc=false", HttpMethod.GET, entity, String.class);
+        final ResponseEntity<String> responseEntity = this.restTemplete.exchange("http://localhost:" + port + "/rest/dummy?pageNumber=0&pageSize=10000", HttpMethod.GET, entity, String.class);
         final JSONObject jsonObject = new JSONObject(responseEntity.getBody());
         final List<Dummy> dummies = mapper.readValue(jsonObject.getString("content"), mapper.getTypeFactory().constructParametricType(List.class, Dummy.class));
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
         assertNotNull(dummies);
         assertFalse(dummies.isEmpty());
+        assertEquals(10000, jsonObject.get("size"));
+        assertEquals(0, jsonObject.get("number"));
     }
 
     @Test
-    public void testIfListCommandReturnsOk3() throws Exception {
+    void findALl_empty_page() throws Exception {
         final HttpEntity<String> entity = new HttpEntity<String>(null, null);
-        final ResponseEntity<String> responseEntity = this.restTemplete.exchange("http://localhost:" + port + "/rest/dummy?pageNumber=0&pageSize=10000&orderBy=name&asc=true&dummy.name=111", HttpMethod.GET, entity, String.class);
+        final ResponseEntity<String> responseEntity = this.restTemplete.exchange("http://localhost:" + port + "/rest/dummy?pageNumber=100&pageSize=10000", HttpMethod.GET, entity, String.class);
+        final JSONObject jsonObject = new JSONObject(responseEntity.getBody());
+        final List<Dummy> dummies = mapper.readValue(jsonObject.getString("content"), mapper.getTypeFactory().constructParametricType(List.class, Dummy.class));
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertNotNull(dummies);
+        assertTrue(dummies.isEmpty());
+        assertEquals(100, jsonObject.get("number"));
+    }
+
+    @Test
+    void findALl_filter_name() throws Exception {
+        final HttpEntity<String> entity = new HttpEntity<String>(null, null);
+        final ResponseEntity<String> responseEntity = this.restTemplete.exchange("http://localhost:" + port + "/rest/dummy?dummy.name=test-dummy", HttpMethod.GET, entity, String.class);
+        final JSONObject jsonObject = new JSONObject(responseEntity.getBody());
+        final List<Dummy> dummies = mapper.readValue(jsonObject.getString("content"), mapper.getTypeFactory().constructParametricType(List.class, Dummy.class));
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertNotNull(dummies);
+        assertFalse(dummies.isEmpty());
+        assertEquals(1, dummies.size());
+    }
+
+    @Test
+    void findALl_filter_name_empty() throws Exception {
+        final HttpEntity<String> entity = new HttpEntity<String>(null, null);
+        final ResponseEntity<String> responseEntity = this.restTemplete.exchange("http://localhost:" + port + "/rest/dummy?dummy.name=111", HttpMethod.GET, entity, String.class);
         final JSONObject jsonObject = new JSONObject(responseEntity.getBody());
         final List<Dummy> dummies = mapper.readValue(jsonObject.getString("content"), mapper.getTypeFactory().constructParametricType(List.class, Dummy.class));
         assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
@@ -72,7 +105,7 @@ public class DummyRestControllerTest {
     }
 
     @Test
-    public void testIfSaveCommandIsOk() throws Exception {
+    void save() throws Exception {
         final SaveCommand command = new SaveCommand();
         command.setName("My First Name");
 
@@ -85,7 +118,7 @@ public class DummyRestControllerTest {
     }
 
     @Test
-    public void testIfSaveCommandReturnsBadRequest() throws Exception {
+    void save_bad_request() throws Exception {
         final SaveCommand command = new SaveCommand();
         command.setName("<html>test</html>");
 

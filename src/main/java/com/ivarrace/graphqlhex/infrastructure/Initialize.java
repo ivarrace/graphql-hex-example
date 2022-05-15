@@ -15,7 +15,7 @@ public class Initialize {
 
     @PostConstruct
     public void execute(){
-        repository.save(new Dummy(null, UUID.randomUUID().toString()));
+        repository.save(new Dummy(null, "test-dummy"));
         repository.save(new Dummy(null, UUID.randomUUID().toString()));
         repository.save(new Dummy(null, UUID.randomUUID().toString()));
         repository.save(new Dummy(null, UUID.randomUUID().toString()));
