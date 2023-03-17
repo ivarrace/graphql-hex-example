@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class DummyService {
@@ -32,6 +33,14 @@ public class DummyService {
         final var matcher = ExampleMatcher.matching().withIgnoreNullValues().withIgnoreCase();
         final var example = Example.of(dummy, matcher);
         return repository.findAll(example, pageable);
+    }
+
+
+    public Dummy findOne(String id) {
+        //TODO catch
+            UUID toFind = UUID.fromString(id);
+            return repository.findById(toFind).get();
+
     }
 
     public Dummy save(final Dummy dummy) {

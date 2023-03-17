@@ -130,4 +130,33 @@ class DummyRestControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
     }
 
+    @Test
+    void findOne() throws Exception {
+        final String url = "http://localhost:" + port + "/rest/dummy/test-dummy";
+        final HttpEntity<String> entity = new HttpEntity<String>(null, null);
+        final ResponseEntity<String> responseEntity = this.restTemplete.exchange(url, HttpMethod.GET, entity, String.class);
+        final JSONObject jsonObject = new JSONObject(responseEntity.getBody());
+        final List<Dummy> dummies = mapper.readValue(jsonObject.getString("content"), mapper.getTypeFactory().constructParametricType(List.class, Dummy.class));
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertNotNull(dummies);
+        assertFalse(dummies.isEmpty());
+        assertEquals(25, jsonObject.get("size"));
+        assertEquals(0, jsonObject.get("number"));
+        assertTrue(jsonObject.getString("sort").contains("\"unsorted\":true"));
+    }
+
+    @Test
+    void findOne_not_found() throws Exception {
+        final HttpEntity<String> entity = new HttpEntity<String>(null, null);
+        final ResponseEntity<String> responseEntity = this.restTemplete.exchange("http://localhost:" + port + "/rest/dummy", HttpMethod.GET, entity, String.class);
+        final JSONObject jsonObject = new JSONObject(responseEntity.getBody());
+        final List<Dummy> dummies = mapper.readValue(jsonObject.getString("content"), mapper.getTypeFactory().constructParametricType(List.class, Dummy.class));
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertNotNull(dummies);
+        assertFalse(dummies.isEmpty());
+        assertEquals(25, jsonObject.get("size"));
+        assertEquals(0, jsonObject.get("number"));
+        assertTrue(jsonObject.getString("sort").contains("\"unsorted\":true"));
+    }
+
 }
